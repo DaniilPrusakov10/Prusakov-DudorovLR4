@@ -1,0 +1,114 @@
+import random
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Первый метод
+def kubik(n: int) -> list:
+
+    all_result = []
+
+    data = random.sample(range(1, 7), 6)  # Получаем n уникальных случайных чисел от 1 до 6
+
+    for _ in range(n - 6):  # Оставшиеся броски будут повторениями
+        all_result.append(random.choice(data))
+
+    all_result += data  # Добавляем уникальные результаты
+    random.shuffle(all_result)  # Перемешиваем для случайности
+    return all_result
+
+# Второй метод
+def kubik_2(n: int) -> list:
+
+    data = random.choices(range(1, 6), k=n)  # Получаем n случайных чисел от 1 до 6 с возможностью повторений
+    return data
+
+# Третий метод
+def kubik_3(n: int) -> list:
+
+    data = [random.randrange(1, 6) for _ in range(n)]  # Генерируем n случайных чисел от 1 до 6
+    return data
+
+# Четвертый метод
+def kubik_4(n: int) -> list:
+
+
+    data = []
+    for _ in range(n):  # Используем цикл для n подбрасываний
+        data.append(random.randint(1, 6))  # Генерируем случайное число от 1 до 6 и добавляем в список
+    return data
+
+def count_rate(kub_data: list):
+
+    kub_rate = {}
+    for i in kub_data:
+        if i in kub_rate:
+            continue
+        else:
+            kub_rate[i] = kub_data.count(i)
+    for i in range(1, 7):
+        if i not in kub_rate:
+            kub_rate[i] = 0
+    return kub_rate
+
+def sort_rate(counted_rate: dict):
+
+    # Возвращает отсортированную частоту по ключу
+    # :param counted_rate: Наша неотсортированная частота
+    # :return:
+
+    sorted_rate = {}
+    for key in sorted(counted_rate.keys()):
+        sorted_rate[key] = counted_rate[key]
+    return sorted_rate
+
+def crate_dataframe(sorted_date: dict):
+
+    # Создание и преобразование данных в Pandas dataframe
+    df = pd.DataFrame(sorted_date, index=[0])
+    df = df.T
+    df = df.rename(columns={0: 'Частота'})
+    df.insert(0, 'Количество выпаданий', range(1, 1 + len(df)))
+    return df
+
+def probability_solving(dataframe: pd.DataFrame):
+
+    # Вычисление вероятности полученных результатов
+    # :param dataframe:
+    # :return:
+
+    sum_rate = dataframe['Частота'].sum()
+    probability = []
+    for i in dataframe['Частота']:
+        probability.append(i / sum_rate)
+    dataframe['Вероятность'] = probability
+    return dataframe
+
+print("Введите число бросков для кубика (100, 1000, 10000, 1000000): ")
+
+proba = probability_solving(crate_dataframe(sort_rate(count_rate(kubik(n = int(input()))))))
+print(f'Ваши броски: {proba}')
+print("\nМетод 1:")
+# Построение гистограммы
+a = proba['Вероятность'].plot(kind='bar', legend=True, cmap='coolwarm')
+plt.show()
+
+proba_2 = probability_solving(crate_dataframe(sort_rate(count_rate(kubik_2(n = int(input()))))))
+print(f'Ваши броски: {proba_2}')
+print("\nМетод 2:")
+# Построение гистограммы
+a = proba_2['Вероятность'].plot(kind='bar', legend=True, cmap='inferno')
+plt.show()
+
+proba_3 = probability_solving(crate_dataframe(sort_rate(count_rate(kubik_3(n = int(input()))))))
+print(f'Ваши броски: {proba_3}')
+print("\nМетод 3:")
+# Построение гистограммы
+a = proba_3['Вероятность'].plot(kind='bar', legend=True, cmap='viridis')
+plt.show()
+
+proba4 = probability_solving(crate_dataframe(sort_rate(count_rate(kubik_4(n = int(input()))))))
+print(f'Ваши броски: {proba4}')
+print("\nМетод 4:")
+# Построение гистограммы
+a = proba4['Вероятность'].plot(kind='bar', legend=True, cmap='cividis')
+plt.show()
